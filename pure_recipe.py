@@ -265,45 +265,32 @@ def load_yaml() -> dict:
     :return: mappings for each setting. ex: {time: 'true'}
     """
     config_dir = os.path.join(platformdirs.user_config_dir(), "pure_recipe")
-    config_path = "config.yaml"
+    config_path = os.path.join(config_dir, "config.yaml")
 
     # Create the configuration directory if it doesn't exist
-    if not os.path.exists(config_dir):
-        os.makedirs(config_dir)
-
-    # Change the current working directory to the configuration directory
-    os.chdir(config_dir)
+    os.makedirs(config_dir, exist_ok=True)
 
     # Create the configuration file if it doesn't exist
     if not os.path.exists(config_path):
-        with open(config_path, "a"):
-            os.utime(config_path)
+        with open(config_path, "w") as file:
+            yaml.dump({"directory": None, "time": True, "yield": True}, file)
 
     # Load settings from the configuration file
     with open(config_path, "r") as file:
-        settings = yaml.safe_load(file)
-
-    # Initialize settings as an empty dictionary if loading fails
-    if settings is None:
-        settings = dict()
+        settings = yaml.safe_load(file) or {}
 
     # Ensure the directory is set to a default if not present
     recipe_directory = settings.get("directory")
     if not recipe_directory:
-        # Set default directory to ~/Documents/recipes
-        recipe_directory = os.path.join(os.path.expanduser("~"), "Documents", "recipes")
+        recipe_directory = os.path.join(os.path.expanduser("~"), "Documents", "pure_recipes")
         settings["directory"] = recipe_directory
 
     # Create the recipe directory if it doesn't exist
-    if not os.path.exists(recipe_directory):
-        os.makedirs(recipe_directory)
-        print('Created new folder for saving recipes at:' + recipe_directory)
+    os.makedirs(recipe_directory, exist_ok=True)
 
     # Set default values for 'time' and 'yield' if not present
-    if settings.get("time") is None or settings.get("time") == "":
-        settings["time"] = "true"
-    if settings.get("yield") is None or settings.get("yield") == "":
-        settings["yield"] = "true"
+    settings.setdefault("time", True)
+    settings.setdefault("yield", True)
 
     return settings
 
