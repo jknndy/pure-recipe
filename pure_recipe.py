@@ -26,8 +26,7 @@ def main():
         elif args.operations == "browse":
             browse_recipes(settings)
         else:
-            console.print("Invalid operation. See documentation.",
-                          style="bright_red")
+            console.print("Invalid operation. See documentation.", style="bright_red")
     except Exception as e:
         console.print(f"\nAn error occurred: {str(e)}", style="bright_red bold")
 
@@ -39,10 +38,10 @@ def get_console_width() -> int:
 
 def clear_console() -> None:
     """Clear the console."""
-    if os.name == 'nt':  # For Windows
-        os.system('cls')
+    if os.name == "nt":  # For Windows
+        os.system("cls")
     else:  # For Unix-based systems (Linux, macOS)
-        os.system('clear')
+        os.system("clear")
 
 
 def format_file_name(recipe_title: str) -> str:
@@ -73,7 +72,9 @@ def save_recipe_to_markdown(recipe_url: str, yaml_settings) -> str:
     try:
         scraper = scrape_me(recipe_url)
     except Exception as e:
-        console.print(f"\nCould not scrape recipe, error: {str(e)}", style="bright_cyan bold")
+        console.print(
+            f"\nCould not scrape recipe, error: {str(e)}", style="bright_cyan bold"
+        )
     directory = yaml_settings.get("directory")
     # if not os.path.exists(directory):
     #   os.makedirs(directory, mode="0o777")
@@ -107,7 +108,7 @@ def print_markdown(md_content: str) -> None:
     console_width = get_console_width()
     console = Console(width=console_width)
     md = Markdown(md_content)
-    console.print('\n', md, '\n')
+    console.print("\n", md, "\n")
 
 
 def view_recipe(recipe_url: str, yaml_settings: dict, prompt_save: bool = True) -> None:
@@ -134,7 +135,7 @@ def view_recipe(recipe_url: str, yaml_settings: dict, prompt_save: bool = True) 
                 inquirer.List(
                     "after_view",
                     message="What would you like to do next?",
-                    choices=["Save this recipe", "Quit"]
+                    choices=["Save this recipe", "Quit"],
                 )
             ]
 
@@ -142,9 +143,13 @@ def view_recipe(recipe_url: str, yaml_settings: dict, prompt_save: bool = True) 
             if after_view_answer["after_view"] == "Save this recipe":
                 try:
                     save_recipe_to_markdown(recipe_url, yaml_settings)
-                    console.print("\nRecipe saved successfully.\n", style="bright_green")
+                    console.print(
+                        "\nRecipe saved successfully.\n", style="bright_green"
+                    )
                 except Exception as e:
-                    console.print(f"\nError saving the recipe: {str(e)}\n", style="bright_red")
+                    console.print(
+                        f"\nError saving the recipe: {str(e)}\n", style="bright_red"
+                    )
             elif after_view_answer["after_view"] == "Quit":
                 return
     except FileNotFoundError:
@@ -171,11 +176,15 @@ def save_list_of_recipes(url: str, settings: dict) -> None:
     try:
         os.chdir(settings["directory"])
     except FileNotFoundError:
-        console.print("\nDirectory not found. Please check the settings.\n", style="bright_red")
+        console.print(
+            "\nDirectory not found. Please check the settings.\n", style="bright_red"
+        )
         raise
     except Exception as e:
-        console.print(f"\nAn error occurred while changing directory: {str(e)}\n",
-                      style="bright_red")
+        console.print(
+            f"\nAn error occurred while changing directory: {str(e)}\n",
+            style="bright_red",
+        )
         raise
 
     try:
@@ -190,8 +199,10 @@ def save_list_of_recipes(url: str, settings: dict) -> None:
                         style="bright_red",
                     )
     except FileNotFoundError:
-        console.print("\nURL file not found. Please provide a valid file path.\n",
-                      style="bright_red")
+        console.print(
+            "\nURL file not found. Please provide a valid file path.\n",
+            style="bright_red",
+        )
         raise
     except IOError as e:
         console.print(f"\nI/O error({e.errno}): {e.strerror}\n", style="bright_red")
@@ -208,7 +219,9 @@ def browse_recipes(settings):
     """
     directory = settings.get("directory")
     if not directory:
-        console.print("\nDirectory not specified in the settings.\n", style="bright_red")
+        console.print(
+            "\nDirectory not specified in the settings.\n", style="bright_red"
+        )
         return
 
     title_to_file = {}
@@ -222,13 +235,18 @@ def browse_recipes(settings):
                 title_to_file[title] = file_path
 
     if not title_to_file:
-        console.print("\nNo markdown files found in the specified directory.\n", style="bright_red")
+        console.print(
+            "\nNo markdown files found in the specified directory.\n",
+            style="bright_red",
+        )
         return
 
     titles = list(title_to_file.keys())
 
     questions = [
-        inquirer.List("recipe", message="Select a recipe to view", choices=titles + ["Quit"])
+        inquirer.List(
+            "recipe", message="Select a recipe to view", choices=titles + ["Quit"]
+        )
     ]
 
     answers = inquirer.prompt(questions)
@@ -246,8 +264,11 @@ def browse_recipes(settings):
         console.print(f"\nError reading the file: {str(e)}\n", style="bright_red")
 
     back_to_menu_question = [
-        inquirer.List("back_to_menu", message="What would you like to do next?",
-                      choices=["Back to menu", "Quit"])
+        inquirer.List(
+            "back_to_menu",
+            message="What would you like to do next?",
+            choices=["Back to menu", "Quit"],
+        )
     ]
 
     back_to_menu_answer = inquirer.prompt(back_to_menu_question)
@@ -282,7 +303,9 @@ def load_yaml() -> dict:
     # Ensure the directory is set to a default if not present
     recipe_directory = settings.get("directory")
     if not recipe_directory:
-        recipe_directory = os.path.join(os.path.expanduser("~"), "Documents", "pure_recipes")
+        recipe_directory = os.path.join(
+            os.path.expanduser("~"), "Documents", "pure_recipes"
+        )
         settings["directory"] = recipe_directory
 
     # Create the recipe directory if it doesn't exist
