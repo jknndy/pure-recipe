@@ -264,42 +264,47 @@ def load_yaml() -> dict:
     :rtype: dictionary
     :return: mappings for each setting. ex: {time: 'true'}
     """
-
     config_dir = os.path.join(platformdirs.user_config_dir(), "pure_recipe")
     config_path = "config.yaml"
 
+    # Create the configuration directory if it doesn't exist
     if not os.path.exists(config_dir):
         os.makedirs(config_dir)
 
+    # Change the current working directory to the configuration directory
     os.chdir(config_dir)
 
-    # Create the file if it doesn't exist
+    # Create the configuration file if it doesn't exist
     if not os.path.exists(config_path):
         with open(config_path, "a"):
             os.utime(config_path)
 
-    # Open the file since we can be sure it exists now
+    # Load settings from the configuration file
     with open(config_path, "r") as file:
         settings = yaml.safe_load(file)
 
-    # Catch an empty file, even if it wasn't just created
+    # Initialize settings as an empty dictionary if loading fails
     if settings is None:
         settings = dict()
-        settings["directory"] = None
 
-    # Generate and update the recipe directory if it doesn't exist
+    # Ensure the directory is set to a default if not present
     recipe_directory = settings.get("directory")
+    if not recipe_directory:
+        # Set default directory to ~/Documents/recipes
+        recipe_directory = os.path.join(os.path.expanduser("~"), "Documents", "recipes")
+        settings["directory"] = recipe_directory
+
+    # Create the recipe directory if it doesn't exist
     if not os.path.exists(recipe_directory):
         os.makedirs(recipe_directory)
         print('Created new folder for saving recipes at:' + recipe_directory)
 
-    # Generate and update the time and yield options if they don't exist
-    if settings.get("time") is None or "":
+    # Set default values for 'time' and 'yield' if not present
+    if settings.get("time") is None or settings.get("time") == "":
         settings["time"] = "true"
-    if settings.get("yield") is None or "":
+    if settings.get("yield") is None or settings.get("yield") == "":
         settings["yield"] = "true"
 
-    # Update the settings file with the changed field(s)
     return settings
 
 
